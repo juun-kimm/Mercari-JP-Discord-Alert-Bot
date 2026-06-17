@@ -64,7 +64,7 @@ playwright install chromium
 
 ## Configuration
 
-Create a `.env` file:
+Edit your `.env` file:
 
 ```env
 DISCORD_WEBHOOK_URL=YOUR_WEBHOOK_URL
