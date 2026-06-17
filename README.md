@@ -35,35 +35,51 @@ Each new listing includes:
 
 ## Installation
 
-Clone the repository:
+You can install the project in either of these ways:
+
+### Option 1: Download the ZIP
+
+1. Open the repository on GitHub.
+2. Click **Code**.
+3. Click **Download ZIP**.
+4. Extract the ZIP file.
+5. Open a terminal inside the extracted project folder.
+
+```bash
+cd Downloads/Mercari-JP-Discord-Alert-Bot-main
+```
+
+Skip Option 2, then continue with the setup below.
+
+### Option 2: Clone with Git
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/Mercari-JP-Discord-Alert-Bot.git
 cd Mercari-JP-Discord-Alert-Bot
 ```
 
-Replace `YOUR_USERNAME` with your Github username.
+Replace `YOUR_USERNAME` with your GitHub username.
 
-Create a virtual environment:
+Then continue with the setup below.
+
+### Create a virtual environment
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install dependencies:
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Install Playwright Chromium:
+### Install Playwright Chromium
 
 ```bash
 playwright install chromium
 ```
-
----
 
 ## Configuration
 
