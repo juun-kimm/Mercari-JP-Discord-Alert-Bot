@@ -11,17 +11,16 @@ from playwright.sync_api import sync_playwright
 load_dotenv()
 
 WEBHOOK = os.environ["DISCORD_WEBHOOK_URL"]
-QUERY = os.getenv("SEARCH_QUERY", "koji kuga")
+QUERIES = [q.strip() for q in os.getenv("SEARCH_QUERY", "koji kuga").split(",") if q.strip()]
 POLL_SECONDS = int(os.getenv("POLL_SECONDS", "10"))
 
 SEEN_FILE = "seen.json"
 
-# Order matters: more specific currency patterns first.
 PRICE_PATTERNS = [
-    r"¥\s*[\d,]+",
     r"US\$\s*[\d,]+(?:\.\d+)?",
     r"[\d,]+(?:\.\d+)?\s*US\$",
     r"\$\s*[\d,]+(?:\.\d+)?",
+    r"¥\s*[\d,]+",
     r"[\d,]+(?:\.\d+)?\s*円",
 ]
 
@@ -43,7 +42,6 @@ def listing_id_from_url(url):
 
 
 def looks_like_price(text):
-    """True if a line is just a price/number, not an item name."""
     t = text.strip()
     if re.search(r"¥|円|US\$|\$", t):
         return True
@@ -53,33 +51,32 @@ def looks_like_price(text):
 
 
 def extract_price(text):
-    """Find the price anywhere in the card text and normalize it.
-
-    Mercari splits the number and currency onto separate lines
-    (e.g. '43.23' then 'US$'), so we search the flattened text and
-    rebuild a clean, single-string price.
-    """
     flat = " ".join(text.split())
+
     for pat in PRICE_PATTERNS:
         m = re.search(pat, flat)
         if not m:
             continue
+
         raw = m.group(0)
         num = re.search(r"[\d,]+(?:\.\d+)?", raw)
+
         if not num:
             return raw.strip()
+
         if "US$" in raw or "$" in raw:
-            return f"US${num.group(0)}"
+            return f"${float(num.group(0).replace(',', '')):,.2f}"
+
         if "¥" in raw:
             return f"¥{num.group(0)}"
+
         if "円" in raw:
             return f"{num.group(0)}円"
-        return raw.strip()
+
     return ""
 
 
 def extract_title(card, lines):
-    """Get the real item name from the link/image, not the price text."""
     label = card.get_attribute("aria-label")
     if label and label.strip() and not looks_like_price(label.strip()):
         return label.strip()
@@ -99,23 +96,16 @@ def extract_title(card, lines):
 
 def send_discord_alert(item):
     embed = {
-        # Item name, clickable straight to the listing.
         "title": item["title"],
         "url": item["url"],
-        "fields": [
-            {
-                "name": "Price",
-                "value": item["price"] or "Price not found",
-                "inline": False,
-            }
-        ],
+        "description": f"**Price:** {item['price'] or 'Price not found'}",
     }
 
     if item.get("image"):
         embed["image"] = {"url": item["image"]}
 
     payload = {
-        "content": f"🔥 New Mercari JP listing for **{QUERY}**",
+        "content": f"🔥 New Mercari JP listing for **{item['query']}**",
         "embeds": [embed],
     }
 
@@ -123,10 +113,10 @@ def send_discord_alert(item):
     r.raise_for_status()
 
 
-def scrape_listings(page):
+def scrape_listings(page, query):
     url = (
         "https://jp.mercari.com/search"
-        f"?keyword={quote(QUERY)}"
+        f"?keyword={quote(query)}"
         "&sort=created_time"
         "&order=desc"
     )
@@ -147,23 +137,17 @@ def scrape_listings(page):
         text = card.inner_text().strip()
         lines = [line.strip() for line in text.splitlines() if line.strip()]
 
-        title = extract_title(card, lines)
-        price = extract_price(text)
-
-        image = ""
         img = card.locator("img").first
-        if img.count() > 0:
-            image = img.get_attribute("src") or ""
+        image = img.get_attribute("src") if img.count() > 0 else ""
 
-        results.append(
-            {
-                "id": listing_id_from_url(full_url),
-                "title": title,
-                "price": price,
-                "url": full_url,
-                "image": image,
-            }
-        )
+        results.append({
+            "id": listing_id_from_url(full_url),
+            "query": query,
+            "title": extract_title(card, lines),
+            "price": extract_price(text),
+            "url": full_url,
+            "image": image or "",
+        })
 
     return results
 
@@ -185,21 +169,22 @@ def main():
 
         page = context.new_page()
 
-        print(f"Watching Mercari JP for: {QUERY}")
+        print(f"Watching Mercari JP for: {', '.join(QUERIES)}")
         print(f"Polling every {POLL_SECONDS} seconds")
 
         while True:
             try:
-                listings = scrape_listings(page)
-                print(f"Checked {len(listings)} listings")
+                for query in QUERIES:
+                    listings = scrape_listings(page, query)
+                    print(f"Checked {len(listings)} listings for: {query}")
 
-                for item in reversed(listings):
-                    if item["id"] not in seen:
-                        print(f"New: {item['title']} | {item['price']} | {item['url']}")
-                        send_discord_alert(item)
-                        seen.add(item["id"])
-                        save_seen(seen)
-                        time.sleep(1)
+                    for item in reversed(listings):
+                        if item["id"] not in seen:
+                            print(f"New: {item['title']} | {item['price']} | {item['url']}")
+                            send_discord_alert(item)
+                            seen.add(item["id"])
+                            save_seen(seen)
+                            time.sleep(1)
 
             except KeyboardInterrupt:
                 print("Stopped.")
