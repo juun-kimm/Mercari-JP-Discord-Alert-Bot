@@ -1,4 +1,5 @@
 # Mercari-JP-Discord-Alert-Bot
+
 A lightweight Playwright-powered Mercari Japan watcher that monitors search results and sends Discord notifications whenever a new listing appears.
 
 ## Features
@@ -6,7 +7,7 @@ A lightweight Playwright-powered Mercari Japan watcher that monitors search resu
 * Monitors Mercari JP search results
 * Discord webhook notifications
 * Duplicate prevention using local cache
-* Configurable search query
+* Supports one or multiple search queries
 * Configurable polling interval
 * Supports long-running execution via tmux
 * Lightweight and easy to self-host
@@ -71,7 +72,7 @@ Create a `.env` file by running:
 ```bash
 echo "DISCORD_WEBHOOK_URL=YOUR_DISCORD_WEBHOOK_URL
 
-SEARCH_QUERY=koji kuga
+SEARCH_QUERY=koji kuga,rick owens
 
 SEARCH_SIZE=42
 SEARCH_REGION=US
@@ -84,6 +85,16 @@ POLL_SECONDS=10" > .env
 ```
 
 Replace `YOUR_DISCORD_WEBHOOK_URL` with your Discord webhook URL.
+
+### Multiple Search Queries
+
+You can monitor multiple searches by separating keywords with commas:
+
+```env
+SEARCH_QUERY=koji kuga,rick owens,chrome hearts
+```
+
+The bot will check each query every polling cycle and send alerts for new listings from any of them.
 
 ### Getting a Discord Webhook URL
 
@@ -109,7 +120,7 @@ You should see something similar to:
 ```env
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxxxxxxx/xxxxxxxx
 
-SEARCH_QUERY=koji kuga
+SEARCH_QUERY=koji kuga,rick owens
 
 SEARCH_SIZE=42
 SEARCH_REGION=US
@@ -125,11 +136,11 @@ POLL_SECONDS=10
 
 ### Notes
 
-* `SEARCH_QUERY` is the keyword monitored on Mercari JP.
+* `SEARCH_QUERY` is one or more keywords monitored on Mercari JP.
+* Separate multiple search queries with commas, e.g. `SEARCH_QUERY=koji kuga,rick owens`.
 * `POLL_SECONDS` controls how often Mercari is checked for new listings.
 * Lower polling intervals may increase the likelihood of rate limiting.
 * Never commit your `.env` file or Discord webhook URL to GitHub.
-
 
 You can find your webhook URL by creating a new channel:
 Create a Discord server (or use one you own).
@@ -141,17 +152,17 @@ Copy the webhook URL
 
 ### Environment Variables
 
-| Variable            | Description              |
-| ------------------- | ------------------------ |
-| DISCORD_WEBHOOK_URL | Discord webhook URL      |
-| SEARCH_QUERY        | Mercari search keyword   |
-| SEARCH_SIZE         | Search size parameter    |
-| SEARCH_REGION       | Search region            |
-| SEARCH_SORT         | Sort order               |
-| SEARCH_FILTER       | Search filter            |
-| SEARCH_PRICE_MIN    | Minimum price            |
-| SEARCH_PRICE_MAX    | Maximum price            |
-| POLL_SECONDS        | Poll interval in seconds |
+| Variable            | Description                                             |
+| ------------------- | ------------------------------------------------------- |
+| DISCORD_WEBHOOK_URL | Discord webhook URL                                     |
+| SEARCH_QUERY        | One or more Mercari search keywords separated by commas |
+| SEARCH_SIZE         | Search size parameter                                   |
+| SEARCH_REGION       | Search region                                           |
+| SEARCH_SORT         | Sort order                                              |
+| SEARCH_FILTER       | Search filter                                           |
+| SEARCH_PRICE_MIN    | Minimum price                                           |
+| SEARCH_PRICE_MAX    | Maximum price                                           |
+| POLL_SECONDS        | Poll interval in seconds                                |
 
 ---
 
