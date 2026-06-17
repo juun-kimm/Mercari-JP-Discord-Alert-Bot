@@ -37,7 +37,7 @@ Each new listing includes:
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/mercari-alerts.git
+git clone https://github.com/YOUR_USERNAME/Mercari-JP-Discord-Alert-Bot.git
 cd Mercari-JP-Discord-Alert-Bot
 ```
 
