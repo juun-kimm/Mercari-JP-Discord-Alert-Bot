@@ -70,18 +70,7 @@ playwright install chromium
 Create a `.env` file by running:
 
 ```bash
-echo "DISCORD_WEBHOOK_URL=YOUR_DISCORD_WEBHOOK_URL
-
-SEARCH_QUERY=koji kuga,20471120,beauty:beast
-
-SEARCH_SIZE=42
-SEARCH_REGION=US
-SEARCH_SORT=recent
-SEARCH_FILTER=all
-SEARCH_PRICE_MIN=0
-SEARCH_PRICE_MAX=10000
-
-POLL_SECONDS=10" > .env
+cp .env.example .env
 ```
 
 Replace `YOUR_DISCORD_WEBHOOK_URL` with your Discord webhook URL.
