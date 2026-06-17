@@ -64,10 +64,48 @@ playwright install chromium
 
 ## Configuration
 
-Edit your `.env` file:
+Create a `.env` file by running:
+
+```bash
+echo "DISCORD_WEBHOOK_URL=YOUR_DISCORD_WEBHOOK_URL
+
+SEARCH_QUERY=koji kuga
+
+SEARCH_SIZE=42
+SEARCH_REGION=US
+SEARCH_SORT=recent
+SEARCH_FILTER=all
+SEARCH_PRICE_MIN=0
+SEARCH_PRICE_MAX=10000
+
+POLL_SECONDS=10" > .env
+```
+
+Replace `YOUR_DISCORD_WEBHOOK_URL` with your Discord webhook URL.
+
+### Getting a Discord Webhook URL
+
+1. Open Discord.
+2. Create a server (or use an existing one).
+3. Create a text channel (e.g. `#mercari-alerts`).
+4. Click the ⚙️ next to the channel.
+5. Go to **Integrations** → **Webhooks**.
+6. Click **Create Webhook**.
+7. Click **Copy Webhook URL**.
+8. Replace `YOUR_DISCORD_WEBHOOK_URL` in the command above with the copied URL.
+
+### Verify Your Configuration
+
+Run:
+
+```bash
+cat .env
+```
+
+You should see something similar to:
 
 ```env
-DISCORD_WEBHOOK_URL=YOUR_WEBHOOK_URL
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxxxxxxx/xxxxxxxx
 
 SEARCH_QUERY=koji kuga
 
@@ -80,6 +118,24 @@ SEARCH_PRICE_MAX=10000
 
 POLL_SECONDS=10
 ```
+
+⚠️ Never commit your `.env` file or webhook URL to GitHub.
+
+### Notes
+
+* `SEARCH_QUERY` is the keyword monitored on Mercari JP.
+* `POLL_SECONDS` controls how often Mercari is checked for new listings.
+* Lower polling intervals may increase the likelihood of rate limiting.
+* Never commit your `.env` file or Discord webhook URL to GitHub.
+
+
+You can find your webhook URL by creating a new channel:
+Create a Discord server (or use one you own).
+Create a channel like #mercari-alerts.
+In Discord:
+Edit Channel → Integrations → Webhooks
+Create Webhook
+Copy the webhook URL
 
 ### Environment Variables
 
