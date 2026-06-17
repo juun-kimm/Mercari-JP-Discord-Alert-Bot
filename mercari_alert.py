@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import time
 import hashlib
@@ -14,6 +15,15 @@ QUERY = os.getenv("SEARCH_QUERY", "koji kuga")
 POLL_SECONDS = int(os.getenv("POLL_SECONDS", "10"))
 
 SEEN_FILE = "seen.json"
+
+# Order matters: more specific currency patterns first.
+PRICE_PATTERNS = [
+    r"¥\s*[\d,]+",
+    r"US\$\s*[\d,]+(?:\.\d+)?",
+    r"[\d,]+(?:\.\d+)?\s*US\$",
+    r"\$\s*[\d,]+(?:\.\d+)?",
+    r"[\d,]+(?:\.\d+)?\s*円",
+]
 
 
 def load_seen():
@@ -32,15 +42,70 @@ def listing_id_from_url(url):
     return hashlib.sha256(url.encode("utf-8")).hexdigest()[:16]
 
 
+def looks_like_price(text):
+    """True if a line is just a price/number, not an item name."""
+    t = text.strip()
+    if re.search(r"¥|円|US\$|\$", t):
+        return True
+    if re.fullmatch(r"[\d,]+(?:\.\d+)?", t):
+        return True
+    return False
+
+
+def extract_price(text):
+    """Find the price anywhere in the card text and normalize it.
+
+    Mercari splits the number and currency onto separate lines
+    (e.g. '43.23' then 'US$'), so we search the flattened text and
+    rebuild a clean, single-string price.
+    """
+    flat = " ".join(text.split())
+    for pat in PRICE_PATTERNS:
+        m = re.search(pat, flat)
+        if not m:
+            continue
+        raw = m.group(0)
+        num = re.search(r"[\d,]+(?:\.\d+)?", raw)
+        if not num:
+            return raw.strip()
+        if "US$" in raw or "$" in raw:
+            return f"US${num.group(0)}"
+        if "¥" in raw:
+            return f"¥{num.group(0)}"
+        if "円" in raw:
+            return f"{num.group(0)}円"
+        return raw.strip()
+    return ""
+
+
+def extract_title(card, lines):
+    """Get the real item name from the link/image, not the price text."""
+    label = card.get_attribute("aria-label")
+    if label and label.strip() and not looks_like_price(label.strip()):
+        return label.strip()
+
+    img = card.locator("img").first
+    if img.count() > 0:
+        alt = img.get_attribute("alt")
+        if alt and alt.strip() and not looks_like_price(alt.strip()):
+            return alt.strip()
+
+    for line in lines:
+        if not looks_like_price(line):
+            return line
+
+    return "Mercari listing"
+
+
 def send_discord_alert(item):
     embed = {
+        # Item name, clickable straight to the listing.
         "title": item["title"],
         "url": item["url"],
-        "description": item["price"] or "Price not found",
         "fields": [
             {
-                "name": "Mercari JP",
-                "value": f"[Open listing]({item['url']})",
+                "name": "Price",
+                "value": item["price"] or "Price not found",
                 "inline": False,
             }
         ],
@@ -82,14 +147,8 @@ def scrape_listings(page):
         text = card.inner_text().strip()
         lines = [line.strip() for line in text.splitlines() if line.strip()]
 
-        title = "Mercari listing"
-        price = ""
-
-        for line in lines:
-            if "¥" in line or "円" in line or "US$" in line:
-                price = line
-            elif title == "Mercari listing":
-                title = line
+        title = extract_title(card, lines)
+        price = extract_price(text)
 
         image = ""
         img = card.locator("img").first
