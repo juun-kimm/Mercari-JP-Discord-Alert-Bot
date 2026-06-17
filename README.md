@@ -38,7 +38,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/mercari-alerts.git
-cd mercari-alerts
+cd Mercari-JP-Discord-Alert-Bot
 ```
 
 Create a virtual environment:
