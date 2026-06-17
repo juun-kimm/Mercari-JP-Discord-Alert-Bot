@@ -72,7 +72,7 @@ Create a `.env` file by running:
 ```bash
 echo "DISCORD_WEBHOOK_URL=YOUR_DISCORD_WEBHOOK_URL
 
-SEARCH_QUERY=koji kuga,rick owens
+SEARCH_QUERY=koji kuga,20471120,beauty:beast
 
 SEARCH_SIZE=42
 SEARCH_REGION=US
@@ -91,7 +91,7 @@ Replace `YOUR_DISCORD_WEBHOOK_URL` with your Discord webhook URL.
 You can monitor multiple searches by separating keywords with commas:
 
 ```env
-SEARCH_QUERY=koji kuga,rick owens,chrome hearts
+SEARCH_QUERY=koji kuga,20471120,beauty:beast
 ```
 
 The bot will check each query every polling cycle and send alerts for new listings from any of them.
@@ -120,7 +120,7 @@ You should see something similar to:
 ```env
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxxxxxxx/xxxxxxxx
 
-SEARCH_QUERY=koji kuga,rick owens
+SEARCH_QUERY=koji kuga,20471120,beauty:beast
 
 SEARCH_SIZE=42
 SEARCH_REGION=US
@@ -137,7 +137,7 @@ POLL_SECONDS=10
 ### Notes
 
 * `SEARCH_QUERY` is one or more keywords monitored on Mercari JP.
-* Separate multiple search queries with commas, e.g. `SEARCH_QUERY=koji kuga,rick owens`.
+* Separate multiple search queries with commas, e.g. `SEARCH_QUERY=koji kuga,20471120,beauty:beast`.
 * `POLL_SECONDS` controls how often Mercari is checked for new listings.
 * Lower polling intervals may increase the likelihood of rate limiting.
 * Never commit your `.env` file or Discord webhook URL to GitHub.
