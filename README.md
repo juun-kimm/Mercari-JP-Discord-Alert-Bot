@@ -41,6 +41,8 @@ git clone https://github.com/YOUR_USERNAME/Mercari-JP-Discord-Alert-Bot.git
 cd Mercari-JP-Discord-Alert-Bot
 ```
 
+Replace YOUR_USERNAME with your Github username.
+
 Create a virtual environment:
 
 ```bash
