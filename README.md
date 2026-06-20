@@ -85,12 +85,6 @@ Example:
 cd "$HOME\Downloads\Mercari-JP-Discord-Alert-Bot-main"
 ```
 
-If the project is stored in OneDrive Documents:
-
-```powershell
-cd "$HOME\OneDrive\Documents\Mercari-JP-Discord-Alert-Bot-main"
-```
-
 Skip Option 2 and continue to **Create a virtual environment**.
 
 ---
