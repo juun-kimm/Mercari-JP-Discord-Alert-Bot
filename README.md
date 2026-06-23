@@ -133,14 +133,6 @@ After activation, the terminal prompt should begin with:
 (.venv)
 ```
 
-Do not use this command in Windows PowerShell:
-
-```bash
-source .venv/bin/activate
-```
-
-That command is only for macOS and Linux shells.
-
 ## Windows Command Prompt
 
 When using Command Prompt instead of PowerShell:
