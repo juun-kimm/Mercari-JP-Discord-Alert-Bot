@@ -121,12 +121,6 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 ```
 
-You can also create the environment using:
-
-```powershell
-python -m venv .venv
-```
-
 After activation, the terminal prompt should begin with:
 
 ```text
